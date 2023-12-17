@@ -4,10 +4,10 @@ const getVersions = require("./functions/getVersions");
 
 getBrands()
     .then(() => {
-        setTimeout(getModels(), ((Math.random() * 9000) + 6000));
+        setTimeout(getModels, ((Math.random() * 9000) + 6000));
     })
     .then(() => {
-        setTimeout(getVersions(), ((Math.random() * 9000) + 6000));
+        setTimeout(getVersions, ((Math.random() * 9000) + 6000));
     })
     .catch((err) => {
         console.log(err);

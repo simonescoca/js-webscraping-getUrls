@@ -7,7 +7,8 @@ async function getBrands() {
 
     const browser = await puppeteer.launch({
         headless: "new",
-        defaultViewport: false
+        defaultViewport: false,
+        userDataDir: "./tmp"
     });
 
     const page = await browser.newPage();
