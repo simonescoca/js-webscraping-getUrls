@@ -1,22 +1,8 @@
 const puppeteer = require("puppeteer");
-const fs = require("fs");
-const _dirproj = require("../utils/dirproj");
 const website = require("../utils/website");
-const createDelay = require("./createDelay");
 
 
-async function getVersions(startindex) {
-
-    let models;
-
-    try {
-        models = fs.readFileSync(_dirproj + "/output/models.json", "utf-8");
-        
-    } catch (err) {
-        console.log("> output/models.json not found");
-    }
-
-    models = JSON.parse(models);
+async function getVersions(url) {
 
     const browser = await puppeteer.launch({
         headless: "new",
@@ -25,7 +11,7 @@ async function getVersions(startindex) {
     });
 
     const page = await browser.newPage();
-    await page.goto(models[startindex].url);
+    await page.goto(url);
     
     await page.waitForSelector("div.amodtable-item > div.row.small-gutters > div.col-6.col-md-3");
     const versions = await page.$$("div.amodtable-item > div.row.small-gutters > div.col-6.col-md-3");
@@ -53,16 +39,8 @@ async function getVersions(startindex) {
         versionsjson.push(newVersion);
     }
 
-    try {
-        fs.writeFileSync(_dirproj + "/output/versions.json", JSON.stringify(versionsjson, null, 2), {flag: "a"});
-        console.log("> aggiungo elemento nel file 'output/versions.json'");
-
-    } catch (err) {
-        console.log("> errore nella scrittura del file", err);
-        
-    }
-
     await browser.close();
+    return versionsjson;
 };
 
 module.exports = getVersions;

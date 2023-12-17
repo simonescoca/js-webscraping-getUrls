@@ -1,22 +1,8 @@
 const puppeteer = require("puppeteer");
-const fs = require("fs");
-const _dirproj = require("../utils/dirproj");
 const website = require("../utils/website");
-const createDelay = require("./createDelay");
 
 
-async function getModels(startindex) {
-
-    let brands;
-
-    try {
-        brands = fs.readFileSync(_dirproj + "/output/brands.json", "utf-8");
-
-    } catch (err) {
-        console.log("> output/brands.json not found");
-    }
-
-    brands = JSON.parse(brands);
+async function getModels(url) {
 
     const browser = await puppeteer.launch({
         headless: "new",
@@ -25,7 +11,7 @@ async function getModels(startindex) {
     });
 
     const page = await browser.newPage();
-    await page.goto(brands[startindex].url);
+    await page.goto(url);
 
     await page.waitForSelector("h2.plist-pcard-title.plist-pcard-title--mh");
 
@@ -54,16 +40,8 @@ async function getModels(startindex) {
         modelsjson.push(newModel);
     }
 
-    try {
-        fs.writeFileSync(_dirproj + "/output/models.json", JSON.stringify(modelsjson, null, 2), {flag: "a"});
-        console.log("> aggiungo elemento nel file 'output/models.json'");
-
-    } catch (err) {
-        console.log("> errore nella scrittura del file", err);
-        
-    }
-
     await browser.close();
+    return modelsjson;
 };
 
 module.exports = getModels;

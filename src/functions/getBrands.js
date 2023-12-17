@@ -1,6 +1,4 @@
 const puppeteer = require("puppeteer");
-const fs = require("fs");
-const _dirproj = require("../utils/dirproj");
 const website = require("../utils/website");
 
 async function getBrands() {
@@ -47,53 +45,8 @@ async function getBrands() {
 
     }
 
-    // scrittura dei file
-
-    try {
-        fs.readdirSync(_dirproj + "/output", "utf-8");
-        console.log("> leggo la cartella 'output'");
-
-        try {
-            fs.readFileSync(_dirproj + "/output/brands.json", "utf-8");
-            console.log("> esiste già un file 'output/brands.json', lo sostituisco con quello nuovo");
-
-            try {
-                fs.unlinkSync(_dirproj + "/output");
-                console.log("> file 'output/brands.json' eliminato con successo");
-            } catch (err) {
-                console.log("> errore nell'eliminazione del file 'output/brands.json'", err);
-            }
-
-        } catch (err) {
-            try {
-                fs.writeFileSync(_dirproj + "/output/brands.json", JSON.stringify(brandsjson, null, 2), {flag: "a"});
-                console.log("> scrivo il file 'output/brands.json'");
-        
-            } catch (err) {
-                console.log("> errore nella scrittura del file", err);
-            }
-        }
-
-    } catch (err) {
-        try {
-            fs.mkdirSync(_dirproj + "/output");
-            console.log("> creo la cartella 'output'");
-
-            try {
-                fs.writeFileSync(_dirproj + "/output/brands.json", JSON.stringify(brandsjson, null, 2), {flag: "a"});
-                console.log("> scrivo il file 'output/brands.json'");
-        
-            } catch (err) {
-                console.log("> errore nella scrittura del file", err);
-            }
-
-        } catch (err) {
-            if (err.code !== "EEXIST") console.log("> errore nella creazione della cartella", err);
-        }
-    }
-
     await browser.close();
-
+    return brandsjson;
 };
 
 module.exports = getBrands;
