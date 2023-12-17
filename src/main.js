@@ -13,21 +13,38 @@ cleanOutput();
 getBrands()
     .then((brands) => {
 
+        // setTimeout(() => {
+        //     getModels(brands[0].url)
+        //         .then((models) => {
+        //             brands[0]["models"] = models;
+
+        //             setTimeout(() => {
+        //                 getVersions(brands[0].models[0].url)
+        //                     .then((versions) => {
+        //                         brands[0].models[0]["versions"] = versions;
+        //                         writeJson(brands, "brands");
+        //                     })
+        //             }, 5768)
+
+        //         })
+        // }, 8109);
+
         setTimeout(() => {
-            getModels(brands[0].url)
+            getModels(brands)
                 .then((models) => {
-                    brands[0]["models"] = models;
+                    brands.forEach(brand => brand["models"] = models);
 
                     setTimeout(() => {
-                        getVersions(brands[0].models[0].url)
+                        getVersions(models)
                             .then((versions) => {
-                                brands[0].models[0]["versions"] = versions;
+                            
+                                brands.forEach(brand => brand.models.forEach(model => model["versions"] = versions));
                                 writeJson(brands, "brands");
                             })
-                    }, 5768)
+                    }, createDelay(5, 12))
 
                 })
-        }, 8109);
+        }, createDelay(6, 9));
 
     })
 
