@@ -2,3 +2,5 @@
     in modo che ciclino e non si fermino finché non avranno terminato gli url a loro disposizione
 
 2. gestisci il delay nelle funzioni ricorsive all'interno di getModels() e getVersions()
+
+3. MODIFICA UN FILE PER VOLTA!

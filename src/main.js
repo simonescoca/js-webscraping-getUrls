@@ -56,12 +56,13 @@ getBrands()
             .then((models) => {
                 brands.forEach(brand => brand["models"] = models);
 
-                getVersions(models)
-                    .then((versions) => {
+                // getVersions(models)
+                //     .then((versions) => {
                     
-                        brands.forEach(brand => brand.models.forEach(model => model["versions"] = versions));
+                //         brands.forEach(brand => brand.models.forEach(model => model["versions"] = versions));
+                        console.log(brands);
                         writeJson(brands, "brands");
-                    })
+                //     })
             })
     })
 

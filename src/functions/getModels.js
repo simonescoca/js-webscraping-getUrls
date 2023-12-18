@@ -1,9 +1,12 @@
 const puppeteer = require("puppeteer");
 const website = require("../utils/website");
+const createDelay = require("./createDelay");
 
 
-async function getModels(url) {
+const allmodelsjson = [];
 
+async function ricorsiva (array, startindex) {
+        
     const browser = await puppeteer.launch({
         headless: "new",
         defaultViewport: false,
@@ -11,7 +14,7 @@ async function getModels(url) {
     });
 
     const page = await browser.newPage();
-    await page.goto(url);
+    await page.goto(array[startindex]);
 
     await page.waitForSelector("h2.plist-pcard-title.plist-pcard-title--mh");
 
@@ -41,7 +44,28 @@ async function getModels(url) {
     }
 
     await browser.close();
-    return modelsjson;
+    allmodelsjson.push(modelsjson);
+}
+
+async function getModels(brandsJson) {
+    
+    const urls = [];
+    brandsJson.forEach(brand => urls.push(brand.url));
+    let startindex = 0;
+    
+    await ricorsiva(urls, startindex)
+        .then(() => {
+            if(startindex < urls.length){
+                setTimeout(() => {
+                    ricorsiva(urls.length, (startindex + 1));
+                }, createDelay(5, 12));
+            }
+        })
+        .catch ((err) => {
+            console.log(err);
+        })
+        
+    return allmodelsjson.flat();
 };
 
 module.exports = getModels;
