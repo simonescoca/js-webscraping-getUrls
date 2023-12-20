@@ -1,3 +1,3 @@
-const _dirproj = "/Users/simonescoca/Desktop/DESK/Coding/js-webscraping-getUrls";
+const _dirproj = __dirname.replace("/src/utils", "");
 
 module.exports = _dirproj;
