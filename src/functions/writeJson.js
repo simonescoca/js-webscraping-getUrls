@@ -5,10 +5,10 @@ function writeJson(data, filename) {
     
     try {
         fs.writeFileSync(_dirproj + `/output/${filename}.json`, JSON.stringify(data, null, 2), {flag: "a"});
-        console.log(`> scrivo il file 'output/${filename}.json'`);
+        console.log(`\n> scrivo il file 'output/${filename}.json'`);
     
     } catch (err) {
-        console.log("> errore nella scrittura del file", err);
+        console.log("\n> errore nella scrittura del file", err);
     }
 }
 
