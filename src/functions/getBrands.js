@@ -1,6 +1,7 @@
 const puppeteer = require("puppeteer");
 const website = require("../utils/website");
 
+
 function getBrands() {
 
     return new Promise(async (resolve) => {
@@ -43,6 +44,7 @@ function getBrands() {
             newBrand["name"] = name;
             newBrand["url"] = url;
     
+            console.log(` + ${newBrand.name}`);
             brandsjson.push(newBrand);
         }
     
