@@ -3,7 +3,7 @@ const website = require("../utils/website");
 const createDelay = require("./createDelay");
 
 
-function getVersions(urls, index, finalindex, allversionsjson = []) {
+function getVersions(brandsWmodels, brandindex, modelindex, finalbrandindex, finalmodelindex) {
     return new Promise((resolve) => {
 
         setTimeout(async () => {
@@ -15,7 +15,7 @@ function getVersions(urls, index, finalindex, allversionsjson = []) {
             });
         
             const page = await browser.newPage();
-            await page.goto(urls[index]);
+            await page.goto(brandsWmodels[brandindex].models[modelindex].url);
             
             await page.waitForSelector("div.amodtable-item > div.row.small-gutters > div.col-6.col-md-3");
     
@@ -46,11 +46,18 @@ function getVersions(urls, index, finalindex, allversionsjson = []) {
             }
         
             await browser.close();
-            allversionsjson.push(versionsjson);
+            brandsWmodels[brandindex].models[modelindex]["versions"] = versionsjson;
     
-            // Avvia la ricorsione e attendi la sua risoluzione
-           if (index < finalindex) getVersions(urls, (index + 1), finalindex, allversionsjson).then(() => resolve(allversionsjson));
-           else resolve(allversionsjson); // Risolve la Promise con i risultati accumulati
+
+            if (modelindex < finalmodelindex) {
+                await getVersions(brandsWmodels, brandindex, (modelindex + 1), finalbrandindex, finalmodelindex)
+                .then(() => resolve(brandsWmodels));
+
+            } else if (brandindex < finalbrandindex) {
+                await getVersions(brandsWmodels, (brandindex + 1), 0, finalbrandindex, (brandsWmodels[brandindex + 1].models.length - 1))
+                .then(() => resolve(brandsWmodels));
+
+            } else resolve(brandsWmodels);
 
         }, createDelay(3, 5));
     });

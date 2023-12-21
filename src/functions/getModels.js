@@ -3,7 +3,7 @@ const website = require("../utils/website");
 const createDelay = require("./createDelay");
 
 
-function getModels(urls, index, finalindex, allmodelsjson = []) {
+function getModels(brands, index, finalindex) {
     return new Promise((resolve) => {
 
         setTimeout(async () => {
@@ -15,7 +15,7 @@ function getModels(urls, index, finalindex, allmodelsjson = []) {
             });
         
             const page = await browser.newPage();
-            await page.goto(urls[index]);
+            await page.goto(brands[index].url);
         
             await page.waitForSelector("h2.plist-pcard-title.plist-pcard-title--mh");
         
@@ -46,11 +46,14 @@ function getModels(urls, index, finalindex, allmodelsjson = []) {
             }
         
             await browser.close();
-            allmodelsjson.push(modelsjson);
+            brands[index]["models"] = modelsjson
 
-             // Avvia la ricorsione e attendi la sua risoluzione
-            if (index < finalindex) getModels(urls, (index + 1), finalindex, allmodelsjson).then(() => resolve(allmodelsjson));
-            else resolve(allmodelsjson); // Risolve la Promise con i risultati accumulati
+
+            if (index < finalindex) {
+                getModels(brands, (index + 1), finalindex)
+                .then(() => resolve(brands));
+                
+            } else resolve(brands);
 
         }, createDelay(3, 5));
     });
