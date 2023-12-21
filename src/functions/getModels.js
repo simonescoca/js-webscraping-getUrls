@@ -6,7 +6,7 @@ const createDelay = require("./createDelay");
 function getModels(brands, index, finalindex) {
     return new Promise((resolve) => {
 
-        setTimeout(async () => {
+        setTimeout(async() => {
 
             const browser = await puppeteer.launch({
                 headless: "new",
@@ -15,47 +15,62 @@ function getModels(brands, index, finalindex) {
             });
         
             const page = await browser.newPage();
-            await page.goto(brands[index].url);
-        
-            await page.waitForSelector("h2.plist-pcard-title.plist-pcard-title--mh");
-        
-            const models = await page.$$("h2.plist-pcard-title.plist-pcard-title--mh");
-            const modelsjson = [];
-        
-            for(const model of models) {
-                const newModel = {};
-        
-                let url = await page.evaluate(
-                    element => element.querySelector("a.app-add-search").getAttribute("href"),
-                    model
-                );
-        
-                let name = await page.evaluate(
-                    element => element.querySelector("a.app-add-search").textContent,
-                    model
-                );
-        
-                name = name.replace(/\s{2,}/g, ' ').trim();
-                url = `${website}${url}`;
-        
-                newModel["name"] = name;
-                newModel["url"] = url;
+            await page.goto(brands[index].url)
+            .then(async() => {
+
+                const selettore = "h2.plist-pcard-title.plist-pcard-title--mh";
+                // const pager = "div.app-pager.pager";
+                // await page.waitForSelector(pager, {"visible": true, "timeout": 1000});
+                // se c'è il nodo che corrisponde a quel selettore, scrape dei modelli in brands[index].url/pagina-2 e pusha i modelli nello stesso brands[index] !!!
+
+                try {
+                    await page.waitForSelector(selettore);
                     
-                console.log(` + ${newModel.name}`);
-                modelsjson.push(newModel);
-            }
+                } catch (err) {
+                    console.log(`> selettore "${selettore}" non trovato in ${brands[index].url}`);
+                    process.exit(1);
+                }
         
-            await browser.close();
-            brands[index]["models"] = modelsjson
+                const modelsHandlers = await page.$$(selettore);
+                const models = [];
+            
+                for(const handler of modelsHandlers) {
+                    const newModel = {};
+            
+                    const url = await page.evaluate(
+                        element => element.querySelector("a.app-add-search").getAttribute("href"),
+                        handler
+                    );
+            
+                    const name = await page.evaluate(
+                        element => element.querySelector("a.app-add-search").textContent,
+                        handler
+                    );
+            
+                    newModel["name"] = name.replace(/\s{2,}/g, ' ').trim();
+                    newModel["url"] = `${website}${url}`;
+                        
+                    console.log(` + ${newModel.name}`);
+                    models.push(newModel);
+                }
+            
+                await browser.close();
+                brands[index]["models"] = models
+    
+                if (index < finalindex) {
+                    getModels(brands, (index + 1), finalindex)
+                    .then(() => resolve(brands));
+                    
+                } else resolve(brands);
+            })
+            .catch(async(err) => {
 
+                console.log(`> ${brands[index].url} non raggiungibile\n`, err);
+                await browser.close();
+                process.exit(1);
+            });
 
-            if (index < finalindex) {
-                getModels(brands, (index + 1), finalindex)
-                .then(() => resolve(brands));
-                
-            } else resolve(brands);
-
-        }, createDelay(3, 5));
+        }, createDelay(1.5, 1.5));
     });
 }
 

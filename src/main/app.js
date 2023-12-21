@@ -13,7 +13,7 @@ cleanOutput();
 console.log("\n> scarico tutti i brand...");
 getBrands().then((brands) => {
 
-    brands.length = 2; // ! LEVALOO
+    brands.length = 5; // ! LEVALOO
 
     console.log("\n> scarico ogni modello di ogni brand...");
     getModels(brands, 0, (brands.length - 1))
