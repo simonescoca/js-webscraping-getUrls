@@ -51,7 +51,6 @@ function getBrands() {
                 newBrand["name"] = name.replace(/\s{2,}/g, ' ').trim();
                 newBrand["url"] = `${website}${url}`;
         
-                console.log(` + ${newBrand.name}`);
                 brands.push(newBrand);
             }
         
@@ -67,6 +66,8 @@ function getBrands() {
                 else return 0;
         
             });
+
+            brands.forEach((brand) => console.log(` + ${brand.name}`));
         
             resolve(brands);
 

@@ -3,7 +3,7 @@ const website = require("../utils/website");
 const createDelay = require("./createDelay");
 
 
-function getModels(brands, index, finalindex) {
+function getModels(brands, index, finalindex, currentPage) {
     return new Promise((resolve) => {
 
         setTimeout(async() => {
@@ -15,13 +15,14 @@ function getModels(brands, index, finalindex) {
             });
         
             const page = await browser.newPage();
-            await page.goto(brands[index].url)
+
+            if(currentPage === 1) pagina2 = "";
+            else if (currentPage === 2) pagina2 = "/pagina-2";
+
+            await page.goto(brands[index].url + pagina2)
             .then(async() => {
 
                 const selettore = "h2.plist-pcard-title.plist-pcard-title--mh";
-                // const pager = "div.app-pager.pager";
-                // await page.waitForSelector(pager, {"visible": true, "timeout": 1000});
-                // se c'è il nodo che corrisponde a quel selettore, scrape dei modelli in brands[index].url/pagina-2 e pusha i modelli nello stesso brands[index] !!!
 
                 try {
                     await page.waitForSelector(selettore);
@@ -53,15 +54,44 @@ function getModels(brands, index, finalindex) {
                     console.log(` + ${newModel.name}`);
                     models.push(newModel);
                 }
+
+                const pager = "div.app-pager.pager";
+
+                if(currentPage === 1) {
+                    try {
+                        
+                        // se c'è il nodo che corrisponde al pager -> scrape dei modelli in brands[index].url/pagina-2 e pusha i modelli nello stesso brands[index].models !!!
+                        await page.waitForSelector(pager, {"timeout": 1000});
+                        
+                        await browser.close();
+                        brands[index]["models"] = models;
+
+                        // richiama la funzione con il nuovo brands aggiornato e il goto deve essere su brands[index].url/pagina-2
+                        getModels(brands, index, finalindex, 2)
+                        .then(() => resolve(brands));
+
+                    } catch (err) {
+
+                        await browser.close();
+                        brands[index]["models"] = models;
             
-                await browser.close();
-                brands[index]["models"] = models
-    
-                if (index < finalindex) {
-                    getModels(brands, (index + 1), finalindex)
-                    .then(() => resolve(brands));
-                    
-                } else resolve(brands);
+                        if (index < finalindex) {
+                            getModels(brands, (index + 1), finalindex, 1)
+                            .then(() => resolve(brands));
+                            
+                        } else resolve(brands);
+                    }
+                } else if(currentPage === 2) {
+
+                    await browser.close();
+                    models.forEach((model) => brands[index].models.push(model));
+        
+                    if (index < finalindex) {
+                        getModels(brands, (index + 1), finalindex, 1)
+                        .then(() => resolve(brands));
+                        
+                    } else resolve(brands);
+                }
             })
             .catch(async(err) => {
 
@@ -70,7 +100,7 @@ function getModels(brands, index, finalindex) {
                 process.exit(1);
             });
 
-        }, createDelay(1.5, 1.5));
+        }, createDelay(1.5, 1));
     });
 }
 

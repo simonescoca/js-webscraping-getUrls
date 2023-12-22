@@ -13,17 +13,17 @@ cleanOutput();
 console.log("\n> scarico tutti i brand...");
 getBrands().then((brands) => {
 
-    brands.length = 5; // ! LEVALOO
+    // brands.length = 2; // ! LEVALOO
 
     console.log("\n> scarico ogni modello di ogni brand...");
-    getModels(brands, 0, (brands.length - 1))
-    .then((brandsWmodels) => {
+    getModels(brands, 0, (brands.length - 1), 1)
+    .then((brands) => {
 
         console.log("\n> scarico ogni versione di ogni modello di ogni brand...");
-        getVersions(brandsWmodels, 0, 0, (brandsWmodels.length - 1), (brandsWmodels[0].models.length - 1))
-        .then((brandsWmodelsWversions) => {
+        getVersions(brands, 0, 0, (brands.length - 1), (brands[0].models.length - 1))
+        .then((brands) => {
 
-            writeJson(brandsWmodelsWversions, "brands");
+            writeJson(brands, "brands");
             console.timeEnd("> fine esecuzione");
         });
     });
