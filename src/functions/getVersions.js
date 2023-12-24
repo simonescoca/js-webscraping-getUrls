@@ -3,7 +3,7 @@ const website = require("../utils/website");
 const createDelay = require("./createDelay");
 
 
-function getVersions(brands, brandindex, modelindex, finalbrandindex, finalmodelindex, gotoErrCount = 0) {
+function getVersions(brands, brandindex, modelindex, finalbrandindex, finalmodelindex, gotoErrCount) {
     return new Promise((resolve) => {
 
         setTimeout(async() => {
@@ -48,11 +48,11 @@ function getVersions(brands, brandindex, modelindex, finalbrandindex, finalmodel
         
     
                 if (modelindex < finalmodelindex) {
-                    await getVersions(brands, brandindex, (modelindex + 1), finalbrandindex, finalmodelindex)
+                    await getVersions(brands, brandindex, (modelindex + 1), finalbrandindex, finalmodelindex, gotoErrCount)
                     .then(() => resolve(brands));
     
                 } else if (brandindex < finalbrandindex) {
-                    await getVersions(brands, (brandindex + 1), 0, finalbrandindex, (brands[brandindex + 1].models.length - 1))
+                    await getVersions(brands, (brandindex + 1), 0, finalbrandindex, (brands[brandindex + 1].models.length - 1), gotoErrCount)
                     .then(() => resolve(brands));
     
                 } else resolve(brands);
@@ -60,32 +60,29 @@ function getVersions(brands, brandindex, modelindex, finalbrandindex, finalmodel
             })
             .catch(async(err) => {
 
-                if(err) gotoErrCount++;
-
                 if(gotoErrCount < 3) {
                     console.log(`> non riesco ad estrarre le versioni di ${brands[brandindex].models[modelindex].name} da ${brands[brandindex].models[modelindex].url}\n`, err.message);
                     await browser.close();
 
-                    console.log(`> ${gotoErrCount}º tentativo: provo di nuovo ad estrarre le versioni...`);
+                    console.log(`> ${gotoErrCount + 1}º tentativo: provo di nuovo ad estrarre le versioni...`);
 
                     setTimeout(async() => {
 
-                        await getVersions(brands, brandindex, modelindex, finalbrandindex, finalmodelindex)
+                        await getVersions(brands, brandindex, modelindex, finalbrandindex, finalmodelindex, (gotoErrCount + 1))
                         .then(() => resolve(brands));
 
                     }, 4000);
 
-                } else {
-                    gotoErrCount = 0;
+                } else if(gotoErrCount === 3) {
                     console.log(`> estrazione versioni di ${brands[brandindex].models[modelindex].name} da ${brands[brandindex].models[modelindex].url} skippata`);
                     await browser.close();
 
                     if (modelindex < finalmodelindex) {
-                        await getVersions(brands, brandindex, (modelindex + 1), finalbrandindex, finalmodelindex)
+                        await getVersions(brands, brandindex, (modelindex + 1), finalbrandindex, finalmodelindex, 0)
                         .then(() => resolve(brands));
         
                     } else if (brandindex < finalbrandindex) {
-                        await getVersions(brands, (brandindex + 1), 0, finalbrandindex, (brands[brandindex + 1].models.length - 1))
+                        await getVersions(brands, (brandindex + 1), 0, finalbrandindex, (brands[brandindex + 1].models.length - 1), 0)
                         .then(() => resolve(brands));
                     }
                 }
